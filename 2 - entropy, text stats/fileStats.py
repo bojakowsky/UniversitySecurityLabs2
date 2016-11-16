@@ -8,6 +8,17 @@ from time import gmtime, strftime
 
 
 class Parser(argparse.ArgumentParser):
+    def init_parameters(self):
+        self.add_argument('filename', nargs='+', help='filename to check stats for')
+        self.add_argument('--case', default=1, help='instruct to be case sensitive (0, default 1)',
+                          choices=range(0, 2), type=int)
+        self.add_argument('--whitespace', default=0, help='instruct to skip whitespaces (1, default 0)',
+                          choices=range(0, 2), type=int)
+        self.add_argument('--logbase', default=2, help='logarithm base for entropy algorithm',
+                          type=int)
+        self.add_argument('--precision', default=3, help='entropy algorithm precision',
+                          type=int)
+
     def error(self, message):
         sys.stderr.write('error: %s\n' % message)
         self.print_help()
@@ -41,46 +52,87 @@ class FileStats:
         self.file.close()
 
 
-class Entropy:
-    def __init__(self, precision=3, logarithm_base=2):
-        self.precision = precision
-        self.logarithm_base = logarithm_base
-        self.letters_dict = {}
+class NGram:
+    def __init__(self, n):
+        self.n = n
+        self.dictionary = {}
         self.letters_count = 0
         self.different_letters_count = 0
+        self.entropy = 0
 
     def clear(self):
+        self.n = 0
+        self.dictionary = {}
         self.letters_count = 0
-        self.letters_dict = {}
         self.different_letters_count = 0
+        self.entropy = 0
+
+class Entropy:
+    def __init__(self, precision=3, logarithm_base=2, n_gram=0):
+        self.precision = precision
+        self.logarithm_base = logarithm_base
+        self.n_grams = [NGram(1), NGram(2), NGram(3), NGram(n_gram)]
+
+    def clear(self):
+        for n_gram in self.n_grams:
+          n_gram.clear()
 
     def inspect_message(self, message):
-        self.letters_count = 0
-        self.different_letters_count = 0
-        for l in message:
-            self.letters_count += 1
-            if l not in self.letters_dict:
-                self.letters_dict[l] = 1
-            else:
-                self.letters_dict[l] += 1
-        self.different_letters_count = len(self.letters_dict)
+        for n_gram in self.n_grams:
+            if n_gram.n == 0:
+                continue
 
-    def get_dict_keyval(self, key):
-        bufkey = ""
-        if key == '\n':
-            bufkey = "\\n"
-        elif key == '\t':
-            bufkey = '\\t'
-        elif key == '\r':
-            bufkey = '\\r'
-        else:
-            bufkey = key
-        return "'" + bufkey + "'" + ": " + str(self.letters_dict[key]) + "(" \
-               + str(round((self.letters_dict[key]/self.letters_count) * 100, self.precision)) + "%)"
+            for i in range(0, len(message) - n_gram.n):
+                n_gram.letters_count += 1
+                l = message[i:i+n_gram.n]
+                if l not in n_gram.dictionary:
+                    n_gram.dictionary[l] = 1
+                else:
+                    n_gram.dictionary[l] += 1
+            n_gram.different_letters_count = len(n_gram.dictionary)
 
-    def sum_entropy(self, key):
-        p = self.letters_dict[key]/self.letters_count
-        return math.log(1/p ** p, self.logarithm_base)
+    def get_dict_keyval(self, key, n_gram):
+        bufkey = key
+        if '\n' in key:
+            bufkey = bufkey.replace('\n', '\\n')
+        if '\t' in key:
+            bufkey = bufkey.replace('\t', '\\t')
+        if '\r' in key:
+            bufkey = bufkey.replace('\r', '\\r')
+
+        return "'" + bufkey + "'" + ": " + str(n_gram.dictionary[key]) + "(" \
+               + str(round((n_gram.dictionary[key] / n_gram.letters_count) * 100, self.precision)) + "%)"
+
+    def calc_entropy(self):
+        for n_gram in self.n_grams:
+            self.sum_entropy(n_gram)
+
+    def sum_entropy(self, n_gram):
+        if n_gram.n == 0:
+            return
+        for key in sorted(n_gram.dictionary):
+            p = n_gram.dictionary[key] / n_gram.letters_count
+            res = math.log(1/p ** p, self.logarithm_base)
+            n_gram.entropy += res
+
+    def return_statistics_as_string(self):
+        statistics_string = ""
+        for n_gram in self.n_grams:
+            if n_gram.n == 0:
+                continue
+            statistics_string += "NGram n: " + str(n_gram.n) + "\n"
+            statistics_string += "Letters count: " + str(n_gram.letters_count) + "\n"
+            statistics_string += "Number of different chars: " + str(n_gram.different_letters_count) + "\n"
+
+            for l in sorted(n_gram.dictionary):
+                statistics_string += self.get_dict_keyval(l, n_gram) + "\n"
+
+            statistics_string +="Entropy of the text: " + str(n_gram.entropy) + "\n"
+            statistics_string +="Entropy normalized by length of the text: " + str(n_gram.entropy / n_gram.letters_count) + "\n"
+            statistics_string +="Entropy in %: " + str((1 - n_gram.entropy / n_gram.letters_count) * 100) + "%" + "\n"
+            statistics_string += "----------" + "\n"
+        return statistics_string
+
 
     def skip_whitespaces(self, message):
         message = ''.join(message.split(' '))
@@ -90,18 +142,13 @@ class Entropy:
         return message
 
     def case_not_sensitive(self, message):
-        return message.lower()
+        return message.lower(),
+
+    def skip_certain_chars(self, message, char):
+        return ''.join(message.split(char))
 
 parser = Parser()
-parser.add_argument('filename', nargs='+', help='filename to check stats for')
-parser.add_argument('--case', default=1, help='instruct to be case sensitive (0, default 1)',
-                    choices=range(0, 2), type=int)
-parser.add_argument('--whitespace', default=0, help='instruct to skip whitespaces (1, default 0)',
-                    choices=range(0, 2), type=int)
-parser.add_argument('--logbase', default=2, help='logarithm base for entropy algorithm',
-                    type=int)
-parser.add_argument('--precision', default=3, help='entropy algorithm precision',
-                    type=int)
+parser.init_parameters()
 args = parser.parse_args()
 
 caseSensitive = args.case
@@ -125,17 +172,8 @@ for filename in filenames:
         message = entropyHelper.skip_whitespaces(message)
 
     entropyHelper.inspect_message(message)
-    file.write_line("Letters count: " + str(entropyHelper.letters_count))
-    file.write_line("Number of different chars: " + str(entropyHelper.different_letters_count))
-
-    entropy = 0
-    for l in sorted(entropyHelper.letters_dict):
-        file.write_line(entropyHelper.get_dict_keyval(l))
-        entropy += entropyHelper.sum_entropy(l)
-
-    file.write_line("Entropy of the text: " + str(entropy))
-    file.write_line("Entropy normalized by length of the text: " + str(entropy / entropyHelper.letters_count))
-    file.write_line("Entropy in %: " + str((1 - entropy / entropyHelper.letters_count) * 100) + "%")
+    entropyHelper.calc_entropy()
+    file.write_line(entropyHelper.return_statistics_as_string())
     file.write_break_line()
     entropyHelper.clear()
 
