@@ -1,0 +1,6 @@
+engLit - Moby Dick (ENG) - Herman Melville
+plLit - Moby Dick (PL) - Herman Melville
+
+engTech - Even Faster Websites (ENG) - O'Reilly
+plTech - Skalowalne witryny internetowe (PL) - O'Reilly
+

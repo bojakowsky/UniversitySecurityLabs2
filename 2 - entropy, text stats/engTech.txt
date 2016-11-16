@@ -1,0 +1,88 @@
+Trade-offs
+The design and construction of a computer program can involve thousands of decisions,
+each representing a trade-off. In difficult decisions, each alternative has significant
+positive and negative consequences. In trading off, we hope to obtain a near
+optimal good while minimizing the bad. Perhaps the ultimate trade-off is:
+I want to go to heaven, but I don’t want to die.
+More practically, the Project Triangle:
+Fast. Good. Cheap. Pick Two.
+predicts that even under ideal circumstances, it is not possible to obtain fast, good, and
+cheap. There must be a trade-off.
+In computer programs, we see time versus memory trade-offs in the selection of algorithms.
+We also see expediency or time to market traded against code quality. Such
+trades can have a large impact on the effectiveness of incremental development.
+Every time we touch the code, we are trading off the potential of improving the code
+against the possibility of injecting a bug. When we look at the performance of programs,
+we must consider all of these trade-offs.
+Principles of Optimization
+When looking at optimization, we want to reduce the overall cost of the program.
+Typically, this cost is the perceived execution time of the program, although we could
+optimize on other factors. We then should focus on the parts of the program that
+contribute most significantly to its cost.
+For example, suppose that by profiling we discover the cost of a program’s four
+modules.
+
+If we could somehow cut the cost of Module B in half, we would reduce the total cost
+by only 2%. We would get a better result by cutting the cost of Module A by 10%.
+There is little benefit from optimizing components that do not contribute significantly
+to the cost.
+The analysis of applications is closely related to the analysis of algorithms. When looking
+at execution time, the place where programs spend most of their time is in loops.
+The return on optimization of code that is executed only once is negligible. The benefits
+of optimizing inner loops can be significant.
+For example, if the cost of a loop is linear with respect to the number of iterations, then
+we can say it is O(n), and we can graph its performance as shown in Figure 1-1.
+The execution time of each iteration is reflected in the slope of the line: the greater the
+cost, the steeper the slope. The fixed overhead of the loop determines the elevation of
+its starting point. There is usually little benefit in reducing the fixed overhead. Sometimes
+there is a benefit in increasing the fixed overhead if the cost of each increment
+can be reduced. That can be a good trade-off.
+
+In addition to the plot of execution time, there are three lines—the Axes of Error—that
+our line must not intersect (see Figure 1-2). The first is the Inefficiency line. Crossing
+this line reduces the user’s ability to concentrate. This can also make people irritable.
+The second is the Frustration line. When this line is crossed, the user is aware that he
+is being forced to wait. This invites him to think about other things, such as the desirability
+of competing web applications. The third is the Failure line. This is when the
+user refreshes or closes the browser because the application appears to have crashed,
+or the browser itself produces a dialog suggesting that the application has failed and
+that the user should take action.
+
+There are three ways to avoid intersecting the Axes of Error: reduce the cost of each
+iteration, reduce the number of iterations, or redesign the application.
+When loops become nested, your options are reduced. If the cost of the loop is O(n log
+n), O(n2), or worse, reducing the time per iteration is not effective (see Figure 1-3). The
+only effective options are to reduce n or to replace the algorithm. Fiddling with the cost
+per iteration will be effective only when n is very small.
+
+Programs must be designed to be correct. If the program isn’t right, it doesn’t matter
+if it is fast. However, it is important to determine whether it has performance problems
+as early as possible in the development cycle. In testing web applications, test with slow
+machines and slow networks that more closely mimic those of real users. Testing in
+developer configurations is likely to mask performance problems.
+
+Ajax
+Refactoring the code can reduce its apparent complexity, making optimization and
+other transformations more likely to yield benefits. For example, adopting the YSlow
+rules can have a huge impact on the delivery time of web pages (see http://developer
+.yahoo.com/yslow/).
+Even so, it is difficult for web applications to get under the Inefficiency line because of
+the size and complexity of web pages. Web pages are big, heavy, multipart things. Page
+replacement comes with a significant cost. For applications where the difference
+between successive pages is relatively small, use of Ajax techniques can produce a significant
+improvement.
+Instead of requesting a replacement page as a result of a user action, a packet of data
+is sent to the server (usually encoded as JSON text) and the server responds with another
+packet (also typically JSON-encoded) containing data. A JavaScript program uses that
+data to update the browser’s display. The amount of data transferred is significantly
+reduced, and the time between the user action and the visible feedback is
+also significantly reduced. The amount of work that the server must do is reduced.
+The amount of work that the browser must do is reduced. The amount of work that
+the Ajax programmer must do, unfortunately, is likely to increase. That is one of the
+trade-offs.
+The architecture of an Ajax application is significantly different from most other sorts
+of applications because it is divided between two systems. Getting the division of labor
+right is essential if the Ajax approach is to have a positive impact on performance. The
+packets should be as small as possible. The application should be constructed as a
+conversation between the browser and the server, in which the two halves communicate
+in a concise, expressive, shared language.
