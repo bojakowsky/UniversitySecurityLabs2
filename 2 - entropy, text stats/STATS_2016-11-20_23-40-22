@@ -1,0 +1,109 @@
+Analysis date and time: 2016-11-20 23:40:22
+Filenames analyzed: 
+	simpleTest.txt
+Analysis options:
+	Case sensitive:1
+	Whitespace skipped:0
+	Logarithm base: 2
+	Calculations precision: 3
+--------------------------------------------------------
+Name of the file: simpleTest.txt
+NGram n: 1
+Letters count: 29
+Number of different chars: 16
+<-->
+'_': 3(0.0%)
+'a': 3(0.0%)
+'g': 1(0.0%)
+'h': 2(0.0%)
+'i': 1(0.0%)
+'j': 4(0.0%)
+'l': 2(0.0%)
+'m': 1(0.0%)
+'o': 2(0.0%)
+'p': 1(0.0%)
+'s': 2(0.0%)
+'t': 1(0.0%)
+'u': 1(0.0%)
+'w': 2(0.0%)
+'x': 1(0.0%)
+'y': 2(0.0%)
+<-->
+Entropy of the text: 0.0
+Entropy normalized by length of the text: 0.0
+Entropy in %: 100.0%
+----------
+NGram n: 2
+Letters count: 28
+Number of different chars: 27
+<-->
+'_j': 1(0.0%)
+'_s': 1(0.0%)
+'_x': 1(0.0%)
+'aj': 1(0.0%)
+'al': 1(0.0%)
+'am': 1(0.0%)
+'go': 1(0.0%)
+'hh': 1(0.0%)
+'hi': 1(0.0%)
+'ia': 1(0.0%)
+'ja': 1(0.0%)
+'ju': 1(0.0%)
+'jw': 1(0.0%)
+'jy': 1(0.0%)
+'lg': 1(0.0%)
+'ls': 1(0.0%)
+'m_': 1(0.0%)
+'op': 1(0.0%)
+'ot': 1(0.0%)
+'pw': 1(0.0%)
+'sa': 1(0.0%)
+'sy': 1(0.0%)
+'tj': 1(0.0%)
+'uh': 1(0.0%)
+'w_': 2(0.0%)
+'xj': 1(0.0%)
+'yl': 1(0.0%)
+<-->
+Entropy of the text: 0.0
+Entropy normalized by length of the text: 0.0
+Entropy in %: 100.0%
+----------
+NGram n: 3
+Letters count: 27
+Number of different chars: 27
+<-->
+'_ju': 1(0.0%)
+'_sa': 1(0.0%)
+'_xj': 1(0.0%)
+'ajw': 1(0.0%)
+'als': 1(0.0%)
+'am_': 1(0.0%)
+'got': 1(0.0%)
+'hhi': 1(0.0%)
+'hia': 1(0.0%)
+'iam': 1(0.0%)
+'jal': 1(0.0%)
+'juh': 1(0.0%)
+'jw_': 1(0.0%)
+'jyl': 1(0.0%)
+'lgo': 1(0.0%)
+'lsy': 1(0.0%)
+'m_s': 1(0.0%)
+'opw': 1(0.0%)
+'otj': 1(0.0%)
+'pw_': 1(0.0%)
+'saj': 1(0.0%)
+'tja': 1(0.0%)
+'uhh': 1(0.0%)
+'w_j': 1(0.0%)
+'w_x': 1(0.0%)
+'xjy': 1(0.0%)
+'ylg': 1(0.0%)
+<-->
+Entropy of the text: 0.0
+Entropy normalized by length of the text: 0.0
+Entropy in %: 100.0%
+----------
+
+--------------------------------------------------------

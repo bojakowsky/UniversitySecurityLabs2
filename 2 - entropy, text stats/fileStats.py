@@ -9,7 +9,7 @@ from time import gmtime, strftime
 
 class Parser(argparse.ArgumentParser):
     def init_parameters(self):
-        self.add_argument('filename', nargs='+', help='filename to check stats for')
+        self.add_argument('filenames', nargs='+', help='filenames to check stats for')
         self.add_argument('--case', default=1, help='instruct to be case sensitive (0, default 1)',
                           choices=range(0, 2), type=int)
         self.add_argument('--whitespace', default=0, help='instruct to skip whitespaces (1, default 0)',
@@ -18,6 +18,7 @@ class Parser(argparse.ArgumentParser):
                           type=int)
         self.add_argument('--precision', default=3, help='entropy algorithm precision',
                           type=int)
+        self.add_argument('--skip', default='', help='skip certain sign in statistics')
 
     def error(self, message):
         sys.stderr.write('error: %s\n' % message)
@@ -82,7 +83,7 @@ class Entropy:
             if n_gram.n == 0:
                 continue
 
-            for i in range(0, len(message) - n_gram.n):
+            for i in range(0, len(message) - n_gram.n + 1):
                 n_gram.letters_count += 1
                 l = message[i:i+n_gram.n]
                 if l not in n_gram.dictionary:
@@ -123,10 +124,10 @@ class Entropy:
             statistics_string += "NGram n: " + str(n_gram.n) + "\n"
             statistics_string += "Letters count: " + str(n_gram.letters_count) + "\n"
             statistics_string += "Number of different chars: " + str(n_gram.different_letters_count) + "\n"
-
+            statistics_string += "<-->\n"
             for l in sorted(n_gram.dictionary):
                 statistics_string += self.get_dict_keyval(l, n_gram) + "\n"
-
+            statistics_string += "<-->\n"
             statistics_string +="Entropy of the text: " + str(n_gram.entropy) + "\n"
             statistics_string +="Entropy normalized by length of the text: " + str(n_gram.entropy / n_gram.letters_count) + "\n"
             statistics_string +="Entropy in %: " + str((1 - n_gram.entropy / n_gram.letters_count) * 100) + "%" + "\n"
@@ -153,9 +154,10 @@ args = parser.parse_args()
 
 caseSensitive = args.case
 skipWhitespace = args.whitespace
-filenames = args.filename
+filenames = args.filenames
 logbase = args.logbase
 precision = args.precision
+skip = args.skip
 
 message = ""
 entropyHelper = Entropy(precision, logbase)
@@ -170,6 +172,8 @@ for filename in filenames:
         message = entropyHelper.case_not_sensitive(message)
     if skipWhitespace:
         message = entropyHelper.skip_whitespaces(message)
+    if skip != '':
+        message = entropyHelper.skip_certain_chars(message, skip)
 
     entropyHelper.inspect_message(message)
     entropyHelper.calc_entropy()
