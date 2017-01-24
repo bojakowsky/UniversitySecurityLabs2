@@ -1,2 +1,5 @@
 University Laboratories - late 2016
 1 - certificate generator based on X.509 structure and certificate verification
+2 - calculating entropy of 1, 2, ..., NGrams, some text statistics
+3 - RSA python - decrypting, encrypting
+4 - Adaptive Huffman Encoding, based on strings, not refactored
