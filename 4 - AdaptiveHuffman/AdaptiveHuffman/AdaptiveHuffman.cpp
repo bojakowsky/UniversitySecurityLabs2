@@ -132,6 +132,7 @@ public:
 			{
 				current->quantity += 1;
 				//incQuantities(current);
+				setTopFather(current);
 				added = true;
 				buffer = getEncodedSymbol(val, current, false);
 			}
@@ -188,7 +189,13 @@ public:
 
 		vector<Node*> vec;
 		//Check if tree is good # Faller - Gallagerd statement
+		bool first = true;
 		while (!huff_queue.empty()) {
+			if (first) {
+				first = false;
+				huff_queue.pop();
+				continue;
+			}
 			vec.push_back(huff_queue.front());
 			huff_queue.pop();
 		}
@@ -197,9 +204,10 @@ public:
 			if (vec[i - 1]->quantity < vec[i]->quantity ) {
 				for (int j = i - 1; j >= 0; --j) {
 					if (vec[i]->quantity <= vec[j]->quantity) {
+						incQuantities(vec[i]);
 						swapNodes(vec[i], vec[j + 1]);
 						swap(vec[i], vec[j + 1]);
-						incQuantities(vec[i]);
+						
 						break;
 					}
 				}
@@ -258,32 +266,72 @@ public:
 	}
 };
 
+void bitStringToBitVec(vector<bool> &vec, string bitStr) {
+	for (int i = 0; i < bitStr.length(); ++i) {
+		if (bitStr[i] == '1')
+			vec.push_back(true);
+		else
+			vec.push_back(false);
+	}
+}
+
+int getIntFromBitVec(vector<bool> vec)
+{
+	int x = 0;
+	for (bool i : vec) {
+		x = x << 1 | (i ? 1 : 0);
+	}
+	return x;
+}
+
+std::ifstream::pos_type getFilesize(string filename)
+{
+	std::ifstream in(filename, std::ifstream::ate | std::ifstream::binary);
+	return in.tellg();
+}
 
 int main()
 {
-	char ch;
-	fstream fin("file.txt", fstream::in);
-	ofstream sfin("file.enc");
+	string originalFile = "file.txt";
+	string compressedFile = "file.bin";
+	fstream fin(originalFile);
+	ofstream sfin(compressedFile, fstream::binary );
 	HuffmanTree tree_encode;
 	HuffmanTree tree_decode;
 	HuffmanTree tree_decode_file;
+	std::vector<bool>  bitVector;
+	int counter = 0;
+	char ch;
 	while (fin >> noskipws >> ch) {
-		//cout << ch;
 		tree_encode.encode(string(1, ch));
-		sfin << buffer;
-		//cout << (buffer) << endl;
+		bitVector.clear();
+		bitStringToBitVec(bitVector, buffer);
+		unsigned long n = getIntFromBitVec(bitVector);
+		counter += buffer.size();
+		sfin.write(reinterpret_cast<const char*>(&n), sizeof(n));
 		tree_decode.decode(buffer);
 	}
 	sfin.close();
 	fin.close();
 
 	cout << "\n---\n";
+	ifstream::pos_type originalFileSize = getFilesize(originalFile);
+	// ifstream::pos_type compressedFileSize = getFilesize(compressedFile);
+	long compressedFileSize = counter / 8;
+		// compressedFileSize % 8 == 0 ? compressedFileSize / 8 : (compressedFileSize / 8) + 1;
+	cout << "FileSize original: " << originalFileSize << endl;
+	cout << "FileSize compressed: " << compressedFileSize << endl;
+	cout << "Compression rate: " << (float)compressedFileSize / (float)originalFileSize * 100.0f << "%" << endl;
+	cout << "Data rate savings: " << (float)1.0f - ((float)originalFileSize / (float)compressedFileSize) * 100 << "%" << endl;
 
-	ifstream f("file.enc");
+	/*ifstream f("file.bin", ifstream::binary);
 	stringstream stream;
 	stream << f.rdbuf();
 	tree_decode_file.decodeFile(stream.str());
 
+	f.close();
+	stream.clear();
+	*/
 	int breaker;
 	cin >> breaker;
     return 0;
